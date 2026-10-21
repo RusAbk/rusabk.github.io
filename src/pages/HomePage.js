@@ -1,105 +1,120 @@
 import { h } from "../components/html.js"
 import { Hero } from "../components/Hero.js"
-import { SiteHeader } from "../components/SiteHeader.js"
-import { method, problems, profile, proof, services } from "../content.js"
+import { Icon } from "../components/Icon.js"
+import { Paragraphs, SiteLayout } from "../components/SiteLayout.js"
+import { biography } from "../biography.js"
 
-function SectionIntro({ eyebrow, title, text }) {
-  return h(
-    "div",
-    { className: "section-intro" },
-    h("p", { className: "eyebrow" }, eyebrow),
-    h("h2", null, title),
-    text && h("p", null, text),
-  )
+function ExternalLink({ href, children, className = "source-link" }) {
+  return h("a", { href, className }, children, h(Icon, { name: "diagonal" }))
 }
 
-export function HomePage() {
-  return h(
-    "main",
-    null,
-    h(SiteHeader),
-    h(Hero),
-    h(
-      "section",
-      { id: "problems", className: "section problems-section" },
-      h(
-        "div",
-        { className: "container split" },
-        h(SectionIntro, {
-          eyebrow: "When I help",
-          title: "The work starts when operations become too manual to scale.",
-          text: "Most companies do not need a generic chatbot. They need cleaner processes, fewer handoffs, better data flow, and AI placed exactly where it changes the economics of work.",
-        }),
-        h("div", { className: "problem-list" }, problems.map((item) => h("article", { key: item }, h("span", null), h("p", null, item)))),
+function Experience() {
+  const { education, vietnam } = biography
+  return h("section", { id: "experience", className: "experience-section section-space", "aria-labelledby": "experience-heading" },
+    h("div", { className: "container" },
+      h("header", { className: "section-heading" }, h("h2", { id: "experience-heading" }, "Education and product development")),
+      h("article", { id: "education", className: "curriculum-entry", "aria-labelledby": "education-heading" },
+        h("header", { className: "entry-heading" },
+          h("p", { className: "eyebrow" }, education.label),
+          h("h3", { id: "education-heading" }, education.title),
+        ),
+        h("div", { className: "entry-copy" }, h(Paragraphs, { texts: education.paragraphs, emphasis: education.emphasis })),
       ),
-    ),
-    h(
-      "section",
-      { id: "work", className: "section work-section" },
-      h(
-        "div",
-        { className: "container" },
-        h(SectionIntro, {
-          eyebrow: "What I do",
-          title: "From process diagnosis to AI implementation.",
-          text: "I combine operator experience, technical implementation, and practical customer discovery. The goal is not to add AI everywhere, but to build workflows that teams actually use.",
-        }),
-        h(
-          "div",
-          { className: "service-grid" },
-          services.map((service) => h("article", { key: service.title, className: "service-card" }, h("h3", null, service.title), h("p", null, service.text))),
+      h("article", { id: "vietnam", className: "vietnam-entry surface", "aria-labelledby": "vietnam-heading", "data-arrive": true },
+        h("header", { className: "vietnam-heading" },
+          h("p", { className: "eyebrow" }, vietnam.organization),
+          h("h3", { id: "vietnam-heading" }, vietnam.title),
+        ),
+        h("div", { className: "vietnam-content" },
+          h("p", { className: "vietnam-introduction" }, vietnam.introduction),
+          h("div", { className: "responsibilities" }, vietnam.responsibilities.map((item) =>
+            h("section", { key: item.title, className: "responsibility" },
+              h("h4", null, item.title),
+              h(Paragraphs, { texts: [item.text], emphasis: item.emphasis }),
+            ),
+          )),
+          h("p", { className: "vietnam-context" }, vietnam.context),
+        ),
+        h("aside", { className: "school-materials", "aria-label": "Public materials from the school" },
+          h("p", { className: "detail-label" }, "From the school"),
+          h("ul", null, vietnam.references.map((reference) => h("li", { key: reference.href },
+            h(ExternalLink, { href: reference.href }, reference.label),
+            reference.note && h("p", null, reference.note),
+          ))),
         ),
       ),
     ),
-    h(
-      "section",
-      { id: "method", className: "section method-section" },
-      h(
-        "div",
-        { className: "container" },
-        h(SectionIntro, {
-          eyebrow: "Method",
-          title: "A simple implementation loop.",
-          text: "Each engagement is designed to create visible operational improvement before committing to a heavy product build.",
-        }),
-        h(
-          "div",
-          { className: "method-grid" },
-          method.map((item) =>
-            h("article", { key: item.step, className: "method-card" }, h("span", null, item.step), h("h3", null, item.title), h("p", null, item.text)),
+  )
+}
+
+function CurrentWork() {
+  const { current, noomic, juncta } = biography
+  return h("section", { id: "current", className: "current-section section-space", "aria-labelledby": "current-heading" },
+    h("div", { className: "container" },
+      h("header", { className: "section-heading" }, h("h2", { id: "current-heading" }, "Current work")),
+      h("div", { className: "current-grid" },
+        h("article", { className: "current-project sit-project surface", "aria-labelledby": "sit-heading", "data-arrive": true },
+          h("header", null,
+            h("p", { className: "eyebrow" }, current.organization),
+            h("h3", { id: "sit-heading" }, current.title),
+          ),
+          h("p", null, current.introduction),
+          h("div", { className: "learning-example" }, h("p", null, current.example)),
+          h(Paragraphs, { texts: current.paragraphs }),
+        ),
+        h("article", { id: "noomic", className: "current-project noomic-project surface", "aria-labelledby": "noomic-heading", "data-arrive": true },
+          h("header", null,
+            h("span", { className: "status" }, noomic.status),
+            h("h3", { id: "noomic-heading" }, noomic.title),
+            h("p", { className: "project-subtitle" }, noomic.subtitle),
+          ),
+          h("p", null, noomic.introduction),
+          h(Paragraphs, { texts: noomic.paragraphs }),
+        ),
+        h("article", { id: "juncta", className: "current-project juncta-project surface", "aria-labelledby": "juncta-heading", "data-arrive": true },
+          h("div", { className: "juncta-copy" },
+            h("header", null,
+              h("p", { className: "eyebrow" }, juncta.label),
+              h("h3", { id: "juncta-heading" }, juncta.title),
+              h("p", { className: "project-subtitle" }, juncta.subtitle),
+            ),
+            h(Paragraphs, { texts: juncta.paragraphs }),
+            h(ExternalLink, { className: "text-link", href: juncta.href }, "Visit Juncta"),
+          ),
+          h("figure", { className: "juncta-media" },
+            h("a", { className: "juncta-preview", href: juncta.image, "aria-label": "View full-size screenshot of the Juncta workspace" },
+              h("img", { src: juncta.image, alt: juncta.imageAlt, width: 1440, height: 1000, loading: "lazy", decoding: "async" }),
+              h("span", { className: "preview-action" }, "View screenshot", h(Icon, { name: "diagonal" })),
+            ),
+            h("figcaption", null, juncta.imageCaption),
           ),
         ),
       ),
     ),
-    h(
-      "section",
-      { className: "section proof-section" },
-      h(
-        "div",
-        { className: "container split" },
-        h(SectionIntro, {
-          eyebrow: "Background",
-          title: "Built from real operating experience.",
-          text: "My work is grounded in launching and managing businesses, not only in AI experimentation.",
-        }),
-        h("ul", { className: "proof-list" }, proof.map((item) => h("li", { key: item }, item))),
+  )
+}
+
+function PublicWork() {
+  const { writing } = biography
+  return h("section", { id: "writing", className: "public-work-section section-space", "aria-labelledby": "writing-heading" },
+    h("div", { className: "container public-work-layout" },
+      h("div", { className: "writing-introduction" },
+        h("h2", { id: "writing-heading" }, writing.title),
+        h("p", null, writing.text),
+        h("a", { className: "text-link", href: "/blog/" }, "Read the blog", h(Icon, { name: "arrow" })),
       ),
-    ),
-    h(
-      "section",
-      { id: "contact", className: "contact-section" },
-      h(
-        "div",
-        { className: "container contact-layout" },
-        h(
-          "div",
-          null,
-          h("p", { className: "eyebrow" }, "Contact"),
-          h("h2", null, "Have a process that should be faster, cheaper, or more reliable?"),
-          h("p", null, "Send a short description of the workflow, team, tools, and current bottleneck. I can help define the implementation scope and the first measurable pilot."),
-        ),
-        h("a", { className: "btn primary", href: profile.email }, "Email Ruslan"),
+      h("div", { id: "background", className: "software-works", "aria-labelledby": "software-heading" },
+        h("h3", { id: "software-heading", className: "detail-label" }, "Selected software projects"),
+        writing.software.map((work) => h("article", { key: work.name, className: "software-work" },
+          h("h4", null, work.name),
+          h("p", null, work.description),
+          h("div", { className: "software-links" }, work.links.map((link) => h(ExternalLink, { key: link.href, href: link.href }, link.label))),
+        )),
       ),
     ),
   )
+}
+
+export function HomePage() {
+  return h(SiteLayout, null, h(Hero), h(CurrentWork), h(Experience), h(PublicWork))
 }

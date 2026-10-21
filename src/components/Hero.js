@@ -1,37 +1,21 @@
 import { h } from "./html.js"
-import { hero, profile } from "../content.js"
+import { Paragraphs } from "./SiteLayout.js"
+import { biography } from "../biography.js"
+import { profile } from "../content.js"
 
 export function Hero() {
-  return h(
-    "section",
-    { id: "top", className: "hero" },
-    h(
-      "div",
-      { className: "container hero-layout" },
-      h(
-        "div",
-        { className: "hero-copy" },
-        h("p", { className: "eyebrow" }, hero.eyebrow),
-        h("h1", null, hero.title),
-        h("p", { className: "lead" }, hero.text),
-        h(
-          "div",
-          { className: "hero-actions" },
-          h("a", { className: "btn primary", href: "#contact" }, "Discuss an implementation"),
-          h("a", { className: "btn secondary", href: "#work" }, "What I do"),
-        ),
-        h("ul", { className: "signal-list" }, hero.bullets.map((item) => h("li", { key: item }, item))),
+  return h("section", { className: "profile-hero", "aria-labelledby": "top" },
+    h("div", { className: "container profile-hero-layout" },
+      h("div", { className: "profile-heading" },
+        h("h1", { id: "top" }, profile.name),
+        h("p", { className: "profile-role" }, profile.role),
       ),
-      h(
-        "aside",
-        { className: "hero-panel", "aria-label": "Ruslan Abkadirov profile" },
-        h("img", { src: profile.image, alt: "Ruslan Abkadirov", width: "520", height: "520" }),
-        h(
-          "div",
-          { className: "panel-note" },
-          h("strong", null, profile.name),
-          h("span", null, profile.role),
-        ),
+      h("div", { className: "profile-intro-copy" },
+        h(Paragraphs, { texts: biography.intro }),
+        h("p", { className: "profile-now" }, biography.now),
+      ),
+      h("figure", { className: "profile-portrait" },
+        h("div", { className: "portrait-frame" }, h("img", { src: profile.image, alt: profile.name, width: 1707, height: 2560, fetchPriority: "high" })),
       ),
     ),
   )

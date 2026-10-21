@@ -1,11 +1,12 @@
 import { createServer } from "node:http"
-import { createReadStream, existsSync, watch } from "node:fs"
+import { createReadStream, existsSync, statSync, watch } from "node:fs"
 import { readdir, stat } from "node:fs/promises"
-import { extname, join, normalize, resolve, sep } from "node:path"
+import { extname, isAbsolute, join, relative, resolve, sep } from "node:path"
 import { spawn } from "node:child_process"
 
 const root = resolve(new URL("..", import.meta.url).pathname)
 const srcRoot = join(root, "src")
+const outputRoot = join(root, "_site")
 const port = Number(process.env.PORT || 6173)
 const host = process.env.HOST || "127.0.0.1"
 
@@ -20,6 +21,9 @@ const types = new Map([
   [".png", "image/png"],
   [".svg", "image/svg+xml"],
   [".webp", "image/webp"],
+  [".xml", "application/xml; charset=utf-8"],
+  [".txt", "text/plain; charset=utf-8"],
+  [".ttf", "font/ttf"],
 ])
 
 let building = false
@@ -27,8 +31,8 @@ let queued = false
 const watchers = new Map()
 
 function isInsideRoot(filePath) {
-  const relative = normalize(filePath).replace(root, "")
-  return relative === "" || relative.startsWith(sep)
+  const path = relative(outputRoot, filePath)
+  return path !== ".." && !path.startsWith(`..${sep}`) && !isAbsolute(path)
 }
 
 function runBuild(reason = "initial") {
@@ -93,14 +97,35 @@ async function watchTree(dir) {
 
 function serveFile(req, res) {
   const url = new URL(req.url || "/", `http://${host}:${port}`)
-  const pathname = decodeURIComponent(url.pathname)
+  let pathname
+  try {
+    pathname = decodeURIComponent(url.pathname)
+  } catch {
+    res.writeHead(400, { "content-type": "text/plain; charset=utf-8" })
+    res.end("Bad request")
+    return
+  }
   const requested = pathname === "/" ? "index.html" : pathname.slice(1)
-  const filePath = resolve(root, requested)
+  let filePath = resolve(outputRoot, requested)
 
   if (!isInsideRoot(filePath) || !existsSync(filePath)) {
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" })
     res.end("Not found")
     return
+  }
+
+  if (statSync(filePath).isDirectory()) {
+    if (!url.pathname.endsWith("/")) {
+      res.writeHead(301, { location: url.pathname + "/" + url.search })
+      res.end()
+      return
+    }
+    filePath = join(filePath, "index.html")
+    if (!existsSync(filePath)) {
+      res.writeHead(404, { "content-type": "text/plain; charset=utf-8" })
+      res.end("Not found")
+      return
+    }
   }
 
   const contentType = types.get(extname(filePath).toLowerCase()) || "application/octet-stream"

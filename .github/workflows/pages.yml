@@ -35,13 +35,8 @@ jobs:
       - name: Build static site
         run: npm run build
 
-      - name: Prepare Pages artifact
-        run: |
-          mkdir _site
-          cp index.html _site/
-          cp favicon.ico _site/
-          cp CNAME _site/
-          cp -R assets img _site/
+      - name: Verify generated site
+        run: npm run check
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
